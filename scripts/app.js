@@ -114,6 +114,20 @@ class ExpenseTracker {
         const darkModeToggle = document.getElementById('darkModeToggle');
         darkModeToggle.addEventListener('click', () => this.toggleDarkMode());
 
+        // Profile button
+        const profileBtn = document.getElementById('profileBtn');
+        profileBtn.addEventListener('click', () => this.showProfile());
+
+        // Settings button
+        const settingsBtn = document.getElementById('settingsBtn');
+        settingsBtn.addEventListener('click', () => this.showSettings());
+
+        // View All button
+        const viewAllBtn = document.getElementById('viewAllBtn');
+        if (viewAllBtn) {
+            viewAllBtn.addEventListener('click', () => this.viewAllTransactions());
+        }
+
         // Set today's date as default
         document.getElementById('date').valueAsDate = new Date();
     }
@@ -274,7 +288,7 @@ class ExpenseTracker {
     // ========================================
     // 📋 Transaction Rendering
     // ========================================
-    renderTransactions() {
+    renderTransactions(showAll = false) {
         const container = document.getElementById('transactionList');
         
         if (this.transactions.length === 0) {
@@ -286,9 +300,9 @@ class ExpenseTracker {
             return;
         }
 
-        const recentTransactions = this.transactions.slice(0, 10);
+        const transactionsToShow = showAll ? this.transactions : this.transactions.slice(0, 10);
         
-        container.innerHTML = recentTransactions.map(t => `
+        container.innerHTML = transactionsToShow.map(t => `
             <div class="transaction-item ${t.type}" data-id="${t.id}">
                 <div class="transaction-icon">${this.getCategoryIcon(t.category)}</div>
                 <div class="transaction-details">
@@ -574,6 +588,77 @@ class ExpenseTracker {
     updateDarkModeIcon() {
         const toggle = document.getElementById('darkModeToggle');
         toggle.textContent = this.darkMode ? '☀️' : '🌙';
+    }
+
+    // ========================================
+    // 👤 Profile & Settings
+    // ========================================
+    showProfile() {
+        const stats = this.calculateProfileStats();
+        
+        this.showToast(`
+📊 Your Stats:
+Level: ${this.userData.level}
+XP: ${this.userData.xp}
+Karma: ${this.userData.karma}
+Transactions: ${this.transactions.length}
+        `.trim(), 'info');
+        
+        console.log('=== USER PROFILE ===');
+        console.log('Level:', this.userData.level);
+        console.log('XP:', this.userData.xp);
+        console.log('Karma:', this.userData.karma);
+        console.log('Total Transactions:', this.transactions.length);
+        console.log('Total Balance:', this.formatNumber(this.calculateTotalBalance()));
+        console.log('Badges:', this.userData.badges);
+        console.log('===================');
+    }
+
+    showSettings() {
+        this.showToast('⚙️ Settings panel coming soon!', 'info');
+        
+        console.log('=== SETTINGS ===');
+        console.log('Dark Mode:', this.darkMode ? 'Enabled' : 'Disabled');
+        console.log('Budget Limits:');
+        Object.entries(this.budgets).forEach(([category, data]) => {
+            console.log(`  ${category}: ₹${this.formatNumber(data.limit)}`);
+        });
+        console.log('================');
+    }
+
+    calculateProfileStats() {
+        const totalIncome = this.transactions
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + t.amount, 0);
+        
+        const totalExpenses = this.transactions
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + t.amount, 0);
+        
+        return {
+            totalIncome,
+            totalExpenses,
+            balance: totalIncome - totalExpenses,
+            transactionCount: this.transactions.length,
+            level: this.userData.level,
+            xp: this.userData.xp,
+            karma: this.userData.karma
+        };
+    }
+
+    viewAllTransactions() {
+        console.log('=== ALL TRANSACTIONS ===');
+        console.log(`Total: ${this.transactions.length} transactions`);
+        console.table(this.transactions.map(t => ({
+            Date: t.date,
+            Type: t.type,
+            Amount: `₹${this.formatNumber(t.amount)}`,
+            Category: t.category,
+            Notes: t.notes || '-'
+        })));
+        
+        this.showToast(`📊 Showing all ${this.transactions.length} transactions in console`, 'info');
+        this.renderTransactions(true);
     }
 
     // ========================================
