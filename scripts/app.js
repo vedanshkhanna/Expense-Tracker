@@ -17,7 +17,6 @@ class ExpenseTracker {
         this.unlockedAchievements = [];
         this.darkMode = false;
         
-        this.initAchievements();
         this.init();
     }
 
@@ -28,6 +27,7 @@ class ExpenseTracker {
         this.loadData();
         this.initEventListeners();
         this.initDarkMode();
+        this.initAchievements();
         this.updateDashboard();
         this.renderTransactions();
         this.updateBudgets();
@@ -986,6 +986,7 @@ class ExpenseTracker {
     // 🏆 Achievements System
     // ========================================
     initAchievements() {
+        console.log('Initializing achievements system...');
         this.achievements = [
             // Bronze Tier - Beginner Achievements
             {
@@ -1163,6 +1164,7 @@ class ExpenseTracker {
                 }
             }
         ];
+        console.log(`Initialized ${this.achievements.length} achievements`);
     }
 
     checkAchievements() {
@@ -1196,11 +1198,21 @@ class ExpenseTracker {
         const achievementsList = document.getElementById('achievementsList');
         const achievementsStats = document.querySelector('.achievements-stats');
         
-        if (!achievementsList || !achievementsStats) return;
+        if (!achievementsList || !achievementsStats) {
+            console.warn('Achievement elements not found:', { achievementsList, achievementsStats });
+            return;
+        }
+        
+        if (!this.achievements || this.achievements.length === 0) {
+            console.warn('No achievements defined');
+            return;
+        }
         
         const unlockedCount = this.unlockedAchievements.length;
         const totalCount = this.achievements.length;
         achievementsStats.textContent = `${unlockedCount} / ${totalCount} Unlocked`;
+        
+        console.log(`Rendering ${totalCount} achievements, ${unlockedCount} unlocked`);
         
         achievementsList.innerHTML = this.achievements.map(achievement => {
             const unlocked = this.unlockedAchievements.find(a => a.id === achievement.id);
