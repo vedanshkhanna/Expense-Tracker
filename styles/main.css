@@ -511,6 +511,7 @@ input, select, textarea {
     padding: var(--spacing-xs);
     border-radius: var(--radius-sm);
     transition: var(--transition);
+    cursor: pointer;
 }
 
 .action-btn:hover {

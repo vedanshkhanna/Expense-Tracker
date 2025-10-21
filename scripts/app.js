@@ -162,6 +162,10 @@ class ExpenseTracker {
         const clearDataBtn = document.getElementById('clearDataBtn');
         clearDataBtn.addEventListener('click', () => this.clearAllData());
 
+        // Settings - Generate random data
+        const generateDataBtn = document.getElementById('generateDataBtn');
+        generateDataBtn.addEventListener('click', () => this.generateRandomData());
+
         // Close modals on outside click
         const profileModal = document.getElementById('profileModal');
         profileModal.addEventListener('click', (e) => {
@@ -1258,6 +1262,101 @@ class ExpenseTracker {
                 </div>
             `;
         }).join('');
+    }
+
+    // ========================================
+    // 🎲 Generate Random Data (Testing)
+    // ========================================
+    generateRandomData() {
+        const categories = ['food', 'transport', 'entertainment', 'bills', 'shopping', 'health', 'other'];
+        const expenseDescriptions = {
+            food: ['Grocery shopping', 'Restaurant dinner', 'Coffee', 'Lunch', 'Snacks', 'Fast food'],
+            transport: ['Uber ride', 'Fuel', 'Bus ticket', 'Metro card recharge', 'Parking fee'],
+            entertainment: ['Movie tickets', 'Concert', 'Games', 'Streaming subscription', 'Books'],
+            bills: ['Electricity bill', 'Internet bill', 'Phone bill', 'Water bill', 'Rent'],
+            shopping: ['Clothes', 'Electronics', 'Shoes', 'Accessories', 'Gifts'],
+            health: ['Medicine', 'Doctor visit', 'Gym membership', 'Vitamins', 'Health checkup'],
+            other: ['Miscellaneous', 'Emergency', 'Repairs', 'Donation']
+        };
+        
+        const incomeDescriptions = ['Salary', 'Freelance work', 'Bonus', 'Gift received', 'Refund', 'Side project'];
+
+        // Generate transactions for last 2 months
+        const today = new Date();
+        const twoMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+        
+        const transactions = [];
+        
+        // Generate 80-120 random transactions
+        const numTransactions = Math.floor(Math.random() * 40) + 80;
+        
+        for (let i = 0; i < numTransactions; i++) {
+            // Random date in last 2 months
+            const randomDate = new Date(
+                twoMonthsAgo.getTime() + 
+                Math.random() * (today.getTime() - twoMonthsAgo.getTime())
+            );
+            
+            // 20% chance of income, 80% chance of expense
+            const isIncome = Math.random() < 0.2;
+            const type = isIncome ? 'income' : 'expense';
+            
+            let category, amount, notes;
+            
+            if (isIncome) {
+                category = 'salary';
+                amount = Math.floor(Math.random() * 20000) + 5000; // ₹5,000 - ₹25,000
+                notes = incomeDescriptions[Math.floor(Math.random() * incomeDescriptions.length)];
+            } else {
+                category = categories[Math.floor(Math.random() * categories.length)];
+                // Different amount ranges for different categories
+                if (category === 'bills') {
+                    amount = Math.floor(Math.random() * 3000) + 500; // ₹500 - ₹3,500
+                } else if (category === 'food') {
+                    amount = Math.floor(Math.random() * 800) + 100; // ₹100 - ₹900
+                } else if (category === 'shopping') {
+                    amount = Math.floor(Math.random() * 2000) + 200; // ₹200 - ₹2,200
+                } else {
+                    amount = Math.floor(Math.random() * 1000) + 100; // ₹100 - ₹1,100
+                }
+                notes = expenseDescriptions[category][Math.floor(Math.random() * expenseDescriptions[category].length)];
+            }
+            
+            transactions.push({
+                id: `random_${Date.now()}_${i}`,
+                type: type,
+                amount: amount,
+                category: category,
+                date: randomDate.toISOString().split('T')[0],
+                notes: notes,
+                recurring: Math.random() < 0.1, // 10% chance of recurring
+                createdAt: randomDate.toISOString()
+            });
+        }
+        
+        // Sort by date (newest first)
+        transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        // Add to existing transactions
+        this.transactions = [...transactions, ...this.transactions];
+        
+        // Add XP for all transactions
+        this.addXP(transactions.length * 10, 'Generated sample data');
+        
+        this.saveData();
+        this.updateDashboard();
+        this.renderTransactions();
+        this.updateBudgets();
+        this.updateGamification();
+        this.checkAllChallenges();
+        this.checkAchievements();
+        
+        // Update charts
+        if (window.chartManager) {
+            chartManager.updateCharts();
+        }
+        
+        this.showToast(`✅ Generated ${transactions.length} random transactions for the last 2 months!`, 'success');
     }
 }
 
