@@ -12,8 +12,10 @@ class ChartManager {
     init() {
         // Wait for app to load
         setTimeout(() => {
-            this.renderCategoryChart();
-            this.renderWeeklyChart();
+            if (window.app) {
+                this.renderCategoryChart();
+                this.renderWeeklyChart();
+            }
         }, 500);
     }
 
@@ -22,7 +24,7 @@ class ChartManager {
     // ========================================
     renderCategoryChart() {
         const ctx = document.getElementById('categoryPieChart');
-        if (!ctx) return;
+        if (!ctx || !window.app) return;
 
         // Get current month expenses by category
         const currentMonth = new Date().toISOString().slice(0, 7);
@@ -43,6 +45,12 @@ class ChartManager {
         // Destroy existing chart
         if (this.categoryChart) {
             this.categoryChart.destroy();
+        }
+
+        // If no data, show empty state
+        if (data.length === 0) {
+            this.categoryChart = null;
+            return;
         }
 
         // Create new chart
@@ -91,7 +99,7 @@ class ChartManager {
     // ========================================
     renderWeeklyChart() {
         const ctx = document.getElementById('weeklyBarChart');
-        if (!ctx) return;
+        if (!ctx || !window.app) return;
 
         // Get last 7 days of data
         const dailyData = this.getLast7DaysData();
@@ -162,6 +170,10 @@ class ChartManager {
     // 🛠️ Helper Functions
     // ========================================
     getLast7DaysData() {
+        if (!window.app) {
+            return { labels: [], expenses: [], income: [] };
+        }
+        
         const labels = [];
         const expenses = [];
         const income = [];
@@ -211,8 +223,10 @@ class ChartManager {
     // 🔄 Update Charts
     // ========================================
     updateCharts() {
-        this.renderCategoryChart();
-        this.renderWeeklyChart();
+        if (window.app) {
+            this.renderCategoryChart();
+            this.renderWeeklyChart();
+        }
     }
 }
 

@@ -27,6 +27,7 @@ class ExpenseTracker {
         this.initDarkMode();
         this.updateDashboard();
         this.renderTransactions();
+        this.updateBudgets();
         this.updateGamification();
         this.checkRecurringTransactions();
         this.initDailyChallenges();
@@ -158,11 +159,25 @@ class ExpenseTracker {
         const form = document.getElementById('transactionForm');
         const editId = form.dataset.editId;
 
+        // Validate amount
+        const amount = parseFloat(document.getElementById('amount').value);
+        if (isNaN(amount) || amount <= 0) {
+            this.showToast('Please enter a valid amount greater than 0', 'warning');
+            return;
+        }
+
+        // Validate category
+        const category = document.getElementById('category').value;
+        if (!category) {
+            this.showToast('Please select a category', 'warning');
+            return;
+        }
+
         const transaction = {
             id: editId || Date.now().toString(),
             type: document.querySelector('input[name="type"]:checked').value,
-            amount: parseFloat(document.getElementById('amount').value),
-            category: document.getElementById('category').value,
+            amount: amount,
+            category: category,
             date: document.getElementById('date').value,
             notes: document.getElementById('notes').value,
             recurring: document.getElementById('recurring').checked,
@@ -680,12 +695,14 @@ class ExpenseTracker {
         if (!container) return;
 
         const today = new Date();
-        dateElement.textContent = today.toLocaleDateString('en-IN', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        });
+        if (dateElement) {
+            dateElement.textContent = today.toLocaleDateString('en-IN', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
 
         if (this.challenges.length === 0) {
             container.innerHTML = `
