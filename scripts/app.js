@@ -13,8 +13,11 @@ class ExpenseTracker {
             badges: []
         };
         this.challenges = [];
+        this.achievements = [];
+        this.unlockedAchievements = [];
         this.darkMode = false;
         
+        this.initAchievements();
         this.init();
     }
 
@@ -32,6 +35,7 @@ class ExpenseTracker {
         this.checkRecurringTransactions();
         this.initDailyChallenges();
         this.renderChallenges();
+        this.renderAchievements();
     }
 
     // ========================================
@@ -42,6 +46,7 @@ class ExpenseTracker {
         const savedBudgets = localStorage.getItem('budgets');
         const savedUserData = localStorage.getItem('userData');
         const savedChallenges = localStorage.getItem('challenges');
+        const savedAchievements = localStorage.getItem('unlockedAchievements');
         const savedDarkMode = localStorage.getItem('darkMode');
 
         if (savedTransactions) {
@@ -71,6 +76,10 @@ class ExpenseTracker {
             this.challenges = JSON.parse(savedChallenges);
         }
 
+        if (savedAchievements) {
+            this.unlockedAchievements = JSON.parse(savedAchievements);
+        }
+
         if (savedDarkMode) {
             this.darkMode = JSON.parse(savedDarkMode);
         }
@@ -81,6 +90,7 @@ class ExpenseTracker {
         localStorage.setItem('budgets', JSON.stringify(this.budgets));
         localStorage.setItem('userData', JSON.stringify(this.userData));
         localStorage.setItem('challenges', JSON.stringify(this.challenges));
+        localStorage.setItem('unlockedAchievements', JSON.stringify(this.unlockedAchievements));
         localStorage.setItem('darkMode', JSON.stringify(this.darkMode));
     }
 
@@ -255,6 +265,7 @@ class ExpenseTracker {
         this.updateBudgets();
         this.updateGamification();
         this.checkAllChallenges();
+        this.checkAchievements();
         
         // Update charts if available
         if (window.chartManager) {
@@ -493,6 +504,7 @@ class ExpenseTracker {
         this.userData.xp = 0;
         this.showToast(`🎉 Level Up! You're now Level ${this.userData.level}!`, 'success');
         this.playLevelUpAnimation();
+        this.checkAchievements();
     }
 
     adjustKarma(amount) {
@@ -952,6 +964,7 @@ class ExpenseTracker {
         this.addXP(challenge.reward, `Completed: ${challenge.title}`);
         this.saveData();
         this.renderChallenges();
+        this.checkAchievements();
         
         this.showToast(`🎉 Challenge completed! +${challenge.reward} XP`, 'success');
     }
@@ -963,6 +976,288 @@ class ExpenseTracker {
             }
         });
         this.renderChallenges();
+    }
+
+    // ========================================
+    // 🏆 Achievements System
+    // ========================================
+    initAchievements() {
+        this.achievements = [
+            // Bronze Tier - Beginner Achievements
+            {
+                id: 'first_transaction',
+                name: 'First Steps',
+                description: 'Add your first transaction',
+                icon: '🎯',
+                tier: 'bronze',
+                requirement: 'Add 1 transaction',
+                checkFunction: () => this.transactions.length >= 1
+            },
+            {
+                id: 'ten_transactions',
+                name: 'Getting Started',
+                description: 'Record 10 transactions',
+                icon: '📝',
+                tier: 'bronze',
+                requirement: 'Add 10 transactions',
+                checkFunction: () => this.transactions.length >= 10
+            },
+            {
+                id: 'first_income',
+                name: 'Money Maker',
+                description: 'Record your first income',
+                icon: '💵',
+                tier: 'bronze',
+                requirement: 'Add 1 income transaction',
+                checkFunction: () => this.transactions.some(t => t.type === 'income')
+            },
+            {
+                id: 'budget_setter',
+                name: 'Budget Planner',
+                description: 'Set a custom budget',
+                icon: '📊',
+                tier: 'bronze',
+                requirement: 'Modify any budget limit',
+                checkFunction: () => {
+                    const defaults = { food: 5000, transport: 3000, entertainment: 2000, bills: 8000, shopping: 4000, health: 3000, other: 2000 };
+                    return Object.keys(this.budgets).some(cat => this.budgets[cat].limit !== defaults[cat]);
+                }
+            },
+            
+            // Silver Tier - Intermediate Achievements
+            {
+                id: 'fifty_transactions',
+                name: 'Consistent Tracker',
+                description: 'Record 50 transactions',
+                icon: '📈',
+                tier: 'silver',
+                requirement: 'Add 50 transactions',
+                checkFunction: () => this.transactions.length >= 50
+            },
+            {
+                id: 'level_5',
+                name: 'Rising Star',
+                description: 'Reach Level 5',
+                icon: '⭐',
+                tier: 'silver',
+                requirement: 'Reach Level 5',
+                checkFunction: () => this.userData.level >= 5
+            },
+            {
+                id: 'challenge_master',
+                name: 'Challenge Master',
+                description: 'Complete 10 daily challenges',
+                icon: '🎖️',
+                tier: 'silver',
+                requirement: 'Complete 10 daily challenges',
+                checkFunction: () => {
+                    const completedChallenges = this.challenges.filter(c => c.completed).length;
+                    return completedChallenges >= 10;
+                }
+            },
+            {
+                id: 'budget_keeper',
+                name: 'Budget Keeper',
+                description: 'Stay within budget for all categories',
+                icon: '🎯',
+                tier: 'silver',
+                requirement: 'All budgets under 100% spent',
+                checkFunction: () => {
+                    return Object.keys(this.budgets).every(cat => {
+                        const budget = this.budgets[cat];
+                        return budget.spent <= budget.limit;
+                    });
+                }
+            },
+            
+            // Gold Tier - Advanced Achievements
+            {
+                id: 'hundred_transactions',
+                name: 'Financial Pro',
+                description: 'Record 100 transactions',
+                icon: '🏅',
+                tier: 'gold',
+                requirement: 'Add 100 transactions',
+                checkFunction: () => this.transactions.length >= 100
+            },
+            {
+                id: 'level_10',
+                name: 'Master Tracker',
+                description: 'Reach Level 10',
+                icon: '👑',
+                tier: 'gold',
+                requirement: 'Reach Level 10',
+                checkFunction: () => this.userData.level >= 10
+            },
+            {
+                id: 'perfect_karma',
+                name: 'Perfect Balance',
+                description: 'Maintain 100 Karma',
+                icon: '☯️',
+                tier: 'gold',
+                requirement: 'Keep Karma at 100',
+                checkFunction: () => this.userData.karma === 100
+            },
+            {
+                id: 'savings_master',
+                name: 'Savings Champion',
+                description: 'Have a positive balance of ₹10,000+',
+                icon: '💰',
+                tier: 'gold',
+                requirement: 'Maintain ₹10,000+ balance',
+                checkFunction: () => {
+                    const balance = this.transactions.reduce((sum, t) => {
+                        return t.type === 'income' ? sum + t.amount : sum - t.amount;
+                    }, 0);
+                    return balance >= 10000;
+                }
+            },
+            
+            // Platinum Tier - Elite Achievements
+            {
+                id: 'year_veteran',
+                name: 'Year Veteran',
+                description: 'Use the app for 365 days',
+                icon: '🗓️',
+                tier: 'platinum',
+                requirement: 'Track expenses for 1 year',
+                checkFunction: () => {
+                    if (this.transactions.length === 0) return false;
+                    const oldest = new Date(Math.min(...this.transactions.map(t => new Date(t.date))));
+                    const daysDiff = (new Date() - oldest) / (1000 * 60 * 60 * 24);
+                    return daysDiff >= 365;
+                }
+            },
+            {
+                id: 'five_hundred_transactions',
+                name: 'Ultimate Tracker',
+                description: 'Record 500 transactions',
+                icon: '🏆',
+                tier: 'platinum',
+                requirement: 'Add 500 transactions',
+                checkFunction: () => this.transactions.length >= 500
+            },
+            {
+                id: 'level_20',
+                name: 'Legendary',
+                description: 'Reach Level 20',
+                icon: '💎',
+                tier: 'platinum',
+                requirement: 'Reach Level 20',
+                checkFunction: () => this.userData.level >= 20
+            },
+            {
+                id: 'challenge_legend',
+                name: 'Challenge Legend',
+                description: 'Complete 50 daily challenges',
+                icon: '🏅',
+                tier: 'platinum',
+                requirement: 'Complete 50 daily challenges',
+                checkFunction: () => {
+                    const completedChallenges = this.challenges.filter(c => c.completed).length;
+                    return completedChallenges >= 50;
+                }
+            }
+        ];
+    }
+
+    checkAchievements() {
+        let newUnlocks = [];
+        
+        this.achievements.forEach(achievement => {
+            const alreadyUnlocked = this.unlockedAchievements.some(a => a.id === achievement.id);
+            
+            if (!alreadyUnlocked && achievement.checkFunction()) {
+                const unlockedAchievement = {
+                    ...achievement,
+                    unlockedAt: new Date().toISOString()
+                };
+                this.unlockedAchievements.push(unlockedAchievement);
+                newUnlocks.push(achievement);
+            }
+        });
+        
+        if (newUnlocks.length > 0) {
+            this.saveData();
+            this.renderAchievements();
+            
+            // Show notification for new achievements
+            newUnlocks.forEach(achievement => {
+                this.showToast(`🏆 Achievement Unlocked: ${achievement.name}!`, 'success');
+            });
+        }
+    }
+
+    renderAchievements() {
+        const achievementsList = document.getElementById('achievementsList');
+        const achievementsStats = document.querySelector('.achievements-stats');
+        
+        if (!achievementsList || !achievementsStats) return;
+        
+        const unlockedCount = this.unlockedAchievements.length;
+        const totalCount = this.achievements.length;
+        achievementsStats.textContent = `${unlockedCount} / ${totalCount} Unlocked`;
+        
+        achievementsList.innerHTML = this.achievements.map(achievement => {
+            const unlocked = this.unlockedAchievements.find(a => a.id === achievement.id);
+            const isUnlocked = !!unlocked;
+            
+            // Calculate progress
+            let progress = 0;
+            let progressText = '';
+            
+            // Get current progress based on achievement type
+            if (achievement.id.includes('transaction')) {
+                const target = parseInt(achievement.requirement.match(/\d+/)[0]);
+                progress = Math.min((this.transactions.length / target) * 100, 100);
+                progressText = `${this.transactions.length} / ${target}`;
+            } else if (achievement.id.includes('level')) {
+                const target = parseInt(achievement.requirement.match(/\d+/)[0]);
+                progress = Math.min((this.userData.level / target) * 100, 100);
+                progressText = `Level ${this.userData.level} / ${target}`;
+            } else if (achievement.id.includes('challenge')) {
+                const target = parseInt(achievement.requirement.match(/\d+/)[0]);
+                const completed = this.challenges.filter(c => c.completed).length;
+                progress = Math.min((completed / target) * 100, 100);
+                progressText = `${completed} / ${target}`;
+            } else if (isUnlocked) {
+                progress = 100;
+                progressText = 'Completed';
+            }
+            
+            const unlockDate = unlocked ? new Date(unlocked.unlockedAt).toLocaleDateString() : '';
+            
+            return `
+                <div class="achievement-item ${isUnlocked ? 'unlocked' : 'locked'}">
+                    <div class="achievement-header">
+                        <div class="achievement-badge">${achievement.icon}</div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">${achievement.name}</div>
+                            <span class="achievement-tier ${achievement.tier}">${achievement.tier}</span>
+                        </div>
+                    </div>
+                    <p class="achievement-description">${achievement.description}</p>
+                    <p class="achievement-requirement">📋 ${achievement.requirement}</p>
+                    
+                    ${!isUnlocked && progress > 0 ? `
+                        <div class="achievement-progress">
+                            <div class="achievement-progress-bar">
+                                <div class="achievement-progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="achievement-progress-text">${progressText}</div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="achievement-status ${isUnlocked ? 'unlocked' : 'locked'}">
+                        ${isUnlocked ? '✅ Unlocked' : '🔒 Locked'}
+                    </div>
+                    
+                    ${isUnlocked ? `
+                        <div class="achievement-unlock-date">Unlocked on ${unlockDate}</div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
     }
 }
 

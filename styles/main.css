@@ -978,7 +978,207 @@ input, select, textarea {
 }
 
 /* ========================================
-   🌙 Dark Mode Support
+   � Achievements Section
+   ======================================== */
+
+.achievements-section {
+    background: var(--bg-white);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin: 0 var(--spacing-lg) var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.achievements-stats {
+    font-size: 0.875rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.achievements-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.achievement-item {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-lg);
+    background: var(--bg-light);
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.achievement-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.achievement-item.locked {
+    opacity: 0.6;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+}
+
+.achievement-item.unlocked {
+    border-color: var(--success);
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+}
+
+.achievement-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.achievement-badge {
+    font-size: 3rem;
+    filter: grayscale(100%);
+    opacity: 0.5;
+    transition: var(--transition);
+}
+
+.achievement-item.unlocked .achievement-badge {
+    filter: grayscale(0%);
+    opacity: 1;
+    animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.achievement-info {
+    flex: 1;
+}
+
+.achievement-name {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.achievement-tier {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.achievement-tier.bronze {
+    background: #CD7F32;
+    color: white;
+}
+
+.achievement-tier.silver {
+    background: #C0C0C0;
+    color: #333;
+}
+
+.achievement-tier.gold {
+    background: #FFD700;
+    color: #333;
+}
+
+.achievement-tier.platinum {
+    background: linear-gradient(135deg, #E5E4E2 0%, #D3D3D3 100%);
+    color: #333;
+}
+
+.achievement-description {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    margin-bottom: var(--spacing-sm);
+}
+
+.achievement-requirement {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-bottom: var(--spacing-sm);
+}
+
+.achievement-progress {
+    margin-top: var(--spacing-sm);
+}
+
+.achievement-progress-bar {
+    height: 8px;
+    background: #E1E8ED;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+}
+
+.achievement-progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.achievement-item.unlocked .achievement-progress-fill {
+    background: var(--success);
+}
+
+.achievement-progress-text {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-align: right;
+}
+
+.achievement-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: var(--spacing-sm);
+}
+
+.achievement-status.locked {
+    color: var(--text-light);
+}
+
+.achievement-status.unlocked {
+    color: var(--success);
+}
+
+.achievement-unlock-date {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: var(--spacing-xs);
+}
+
+/* Lock icon overlay */
+.achievement-item.locked::before {
+    content: '🔒';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    opacity: 0.7;
+}
+
+.achievement-item.unlocked::before {
+    content: '✅';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+}
+
+/* ========================================
+   �🌙 Dark Mode Support
    ======================================== */
 
 body.dark-mode {
