@@ -21,7 +21,7 @@ A modern, responsive expense tracking application with gamification features. Tr
 - 🎮 **XP System** - Earn experience points for logging transactions
 - 📊 **Level Progression** - Level up every 500 XP
 - 🏆 **Budget Karma** - Score based on budget adherence
-- 🎯 **Achievement System** - Unlock badges and rewards
+- 🎯 **Daily Challenges** - Complete 3 unique challenges every day for bonus XP
 - ⚡ **Real-time Feedback** - Toast notifications for all actions
 
 ### Cross-Platform
@@ -29,6 +29,7 @@ A modern, responsive expense tracking application with gamification features. Tr
 - 💻 **Desktop Optimized** - Enhanced layout for larger screens
 - 🚀 **PWA Ready** - Install as a standalone app
 - 🌐 **Offline Support** - Works without internet connection
+- 🌙 **Dark Mode** - Toggle between light and dark themes
 
 ---
 
@@ -85,6 +86,24 @@ Expense Tracker/
 
 ## 💡 How to Use
 
+### Toggling Dark Mode
+1. Click the **🌙/☀️** button in the top-right header
+2. Theme preference is saved automatically
+3. Works across all devices
+
+### Daily Challenges
+- **3 new challenges** generated every day
+- Complete challenges to earn **bonus XP** (80-200 XP each)
+- Challenges include:
+  - 📝 Log 3+ transactions
+  - 💰 Keep budgets under 90%
+  - 🚫 Have a no-spend day
+  - 💵 Track income
+  - 🏷️ Perfect categorization
+  - 🌅 Log before noon
+- Auto-completion when conditions are met
+- Resets daily at midnight
+
 ### Adding a Transaction
 1. Click the **+** floating button (bottom-right)
 2. Choose **Expense** or **Income**
@@ -102,7 +121,7 @@ Expense Tracker/
 ### Earning XP
 - **+10 XP** - Log a transaction
 - **+50 XP** - Keep all budgets under limit
-- **+100 XP** - Complete daily challenges (future)
+- **+80-200 XP** - Complete daily challenges
 - **Level up** every 500 XP
 
 ### Budget Karma
@@ -198,7 +217,7 @@ this.addXP(10, 'Logged a transaction');  // Change 10 to desired amount
 To backup your data:
 1. Open browser DevTools (F12)
 2. Go to **Application** > **Local Storage**
-3. Copy the values for `transactions`, `budgets`, and `userData`
+3. Copy the values for `transactions`, `budgets`, `userData`, `challenges`, and `darkMode`
 4. Save to a text file
 
 ---
@@ -210,12 +229,14 @@ To backup your data:
 - [x] Dashboard calculations
 - [x] Budget tracking
 - [x] XP and Karma system
+- [x] Daily challenges system
+- [x] Dark mode
 
 ### Phase 2: Advanced Features 🚧
 - [ ] Calendar view
 - [ ] Export to CSV/PDF
-- [ ] Daily challenges
-- [ ] Badge system
+- [ ] Advanced badge system
+- [ ] Spending insights & trends
 
 ### Phase 3: Cloud Sync 📋
 - [ ] Firebase integration

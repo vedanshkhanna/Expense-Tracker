@@ -12,6 +12,8 @@ class ExpenseTracker {
             karma: 100,
             badges: []
         };
+        this.challenges = [];
+        this.darkMode = false;
         
         this.init();
     }
@@ -22,10 +24,13 @@ class ExpenseTracker {
     init() {
         this.loadData();
         this.initEventListeners();
+        this.initDarkMode();
         this.updateDashboard();
         this.renderTransactions();
         this.updateGamification();
         this.checkRecurringTransactions();
+        this.initDailyChallenges();
+        this.renderChallenges();
     }
 
     // ========================================
@@ -35,6 +40,8 @@ class ExpenseTracker {
         const savedTransactions = localStorage.getItem('transactions');
         const savedBudgets = localStorage.getItem('budgets');
         const savedUserData = localStorage.getItem('userData');
+        const savedChallenges = localStorage.getItem('challenges');
+        const savedDarkMode = localStorage.getItem('darkMode');
 
         if (savedTransactions) {
             this.transactions = JSON.parse(savedTransactions);
@@ -58,12 +65,22 @@ class ExpenseTracker {
         if (savedUserData) {
             this.userData = JSON.parse(savedUserData);
         }
+
+        if (savedChallenges) {
+            this.challenges = JSON.parse(savedChallenges);
+        }
+
+        if (savedDarkMode) {
+            this.darkMode = JSON.parse(savedDarkMode);
+        }
     }
 
     saveData() {
         localStorage.setItem('transactions', JSON.stringify(this.transactions));
         localStorage.setItem('budgets', JSON.stringify(this.budgets));
         localStorage.setItem('userData', JSON.stringify(this.userData));
+        localStorage.setItem('challenges', JSON.stringify(this.challenges));
+        localStorage.setItem('darkMode', JSON.stringify(this.darkMode));
     }
 
     // ========================================
@@ -91,6 +108,10 @@ class ExpenseTracker {
             e.preventDefault();
             this.handleFormSubmit();
         });
+
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.addEventListener('click', () => this.toggleDarkMode());
 
         // Set today's date as default
         document.getElementById('date').valueAsDate = new Date();
@@ -165,6 +186,7 @@ class ExpenseTracker {
         this.renderTransactions();
         this.updateBudgets();
         this.updateGamification();
+        this.checkAllChallenges();
         
         // Update charts if available
         if (window.chartManager) {
@@ -181,6 +203,7 @@ class ExpenseTracker {
             this.updateDashboard();
             this.renderTransactions();
             this.updateBudgets();
+            this.checkAllChallenges();
             
             // Update charts if available
             if (window.chartManager) {
@@ -511,6 +534,211 @@ class ExpenseTracker {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    }
+
+    // ========================================
+    // 🌙 Dark Mode
+    // ========================================
+    initDarkMode() {
+        if (this.darkMode) {
+            document.body.classList.add('dark-mode');
+            this.updateDarkModeIcon();
+        }
+    }
+
+    toggleDarkMode() {
+        this.darkMode = !this.darkMode;
+        document.body.classList.toggle('dark-mode');
+        this.updateDarkModeIcon();
+        this.saveData();
+        
+        const message = this.darkMode ? '🌙 Dark mode enabled' : '☀️ Light mode enabled';
+        this.showToast(message, 'info');
+    }
+
+    updateDarkModeIcon() {
+        const toggle = document.getElementById('darkModeToggle');
+        toggle.textContent = this.darkMode ? '☀️' : '🌙';
+    }
+
+    // ========================================
+    // 🎯 Daily Challenges System
+    // ========================================
+    initDailyChallenges() {
+        const today = new Date().toISOString().slice(0, 10);
+        
+        // Check if we need to generate new challenges
+        if (this.challenges.length === 0 || this.challenges[0].date !== today) {
+            this.generateDailyChallenges(today);
+        }
+    }
+
+    generateDailyChallenges(date) {
+        const challengePool = [
+            {
+                id: 'log_3_transactions',
+                icon: '📝',
+                title: 'Transaction Logger',
+                description: 'Log at least 3 transactions today',
+                reward: 100,
+                checkFunction: () => {
+                    const today = new Date().toISOString().slice(0, 10);
+                    const todayTransactions = this.transactions.filter(t => t.date === today);
+                    return todayTransactions.length >= 3;
+                }
+            },
+            {
+                id: 'stay_under_budget',
+                icon: '💰',
+                title: 'Budget Keeper',
+                description: 'Keep all category budgets under 90%',
+                reward: 150,
+                checkFunction: () => {
+                    return Object.values(this.budgets).every(b => {
+                        const percentage = (b.spent / b.limit) * 100;
+                        return percentage < 90;
+                    });
+                }
+            },
+            {
+                id: 'no_expenses',
+                icon: '🚫',
+                title: 'No-Spend Day',
+                description: 'Don\'t add any expenses today',
+                reward: 200,
+                checkFunction: () => {
+                    const today = new Date().toISOString().slice(0, 10);
+                    const todayExpenses = this.transactions.filter(t => 
+                        t.type === 'expense' && t.date === today
+                    );
+                    return todayExpenses.length === 0;
+                }
+            },
+            {
+                id: 'track_income',
+                icon: '💵',
+                title: 'Income Tracker',
+                description: 'Add at least one income entry today',
+                reward: 80,
+                checkFunction: () => {
+                    const today = new Date().toISOString().slice(0, 10);
+                    const todayIncome = this.transactions.filter(t => 
+                        t.type === 'income' && t.date === today
+                    );
+                    return todayIncome.length >= 1;
+                }
+            },
+            {
+                id: 'categorize_all',
+                icon: '🏷️',
+                title: 'Perfect Categorization',
+                description: 'All today\'s transactions have proper categories',
+                reward: 120,
+                checkFunction: () => {
+                    const today = new Date().toISOString().slice(0, 10);
+                    const todayTransactions = this.transactions.filter(t => t.date === today);
+                    return todayTransactions.length > 0 && 
+                           todayTransactions.every(t => t.category && t.category !== 'other');
+                }
+            },
+            {
+                id: 'morning_tracker',
+                icon: '🌅',
+                title: 'Early Bird',
+                description: 'Log your first transaction before noon',
+                reward: 90,
+                checkFunction: () => {
+                    const today = new Date().toISOString().slice(0, 10);
+                    const todayTransactions = this.transactions.filter(t => t.date === today);
+                    if (todayTransactions.length === 0) return false;
+                    
+                    const firstTransaction = todayTransactions.reduce((earliest, t) => {
+                        return new Date(t.createdAt) < new Date(earliest.createdAt) ? t : earliest;
+                    });
+                    
+                    const hour = new Date(firstTransaction.createdAt).getHours();
+                    return hour < 12;
+                }
+            }
+        ];
+
+        // Select 3 random challenges
+        const shuffled = challengePool.sort(() => 0.5 - Math.random());
+        this.challenges = shuffled.slice(0, 3).map(challenge => ({
+            ...challenge,
+            date: date,
+            completed: false
+        }));
+
+        this.saveData();
+    }
+
+    renderChallenges() {
+        const container = document.getElementById('challengesList');
+        const dateElement = document.getElementById('challengesDate');
+        
+        if (!container) return;
+
+        const today = new Date();
+        dateElement.textContent = today.toLocaleDateString('en-IN', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+
+        if (this.challenges.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <p>No challenges available. Check back tomorrow!</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = this.challenges.map(challenge => {
+            const isCompleted = challenge.completed || challenge.checkFunction();
+            
+            // Update completion status
+            if (isCompleted && !challenge.completed) {
+                this.completeChallenge(challenge.id);
+            }
+
+            return `
+                <div class="challenge-item ${isCompleted ? 'completed' : ''}">
+                    <div class="challenge-icon">${challenge.icon}</div>
+                    <div class="challenge-content">
+                        <div class="challenge-title">${challenge.title}</div>
+                        <div class="challenge-description">${challenge.description}</div>
+                    </div>
+                    <div class="challenge-reward">
+                        <span>⭐ +${challenge.reward} XP</span>
+                    </div>
+                    ${isCompleted ? '<div class="challenge-check">✅</div>' : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    completeChallenge(challengeId) {
+        const challenge = this.challenges.find(c => c.id === challengeId);
+        if (!challenge || challenge.completed) return;
+
+        challenge.completed = true;
+        this.addXP(challenge.reward, `Completed: ${challenge.title}`);
+        this.saveData();
+        this.renderChallenges();
+        
+        this.showToast(`🎉 Challenge completed! +${challenge.reward} XP`, 'success');
+    }
+
+    checkAllChallenges() {
+        this.challenges.forEach(challenge => {
+            if (!challenge.completed && challenge.checkFunction()) {
+                this.completeChallenge(challenge.id);
+            }
+        });
+        this.renderChallenges();
     }
 }
 

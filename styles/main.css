@@ -823,6 +823,19 @@ input, select, textarea {
     .card-value {
         font-size: 1.5rem;
     }
+
+    .challenge-item {
+        flex-wrap: wrap;
+    }
+
+    .challenge-reward {
+        order: 3;
+        margin-top: var(--spacing-sm);
+    }
+
+    .challenge-check {
+        order: 4;
+    }
 }
 
 @media (max-width: 480px) {
@@ -844,9 +857,22 @@ input, select, textarea {
     }
     
     .budget-section,
-    .transactions-section {
+    .transactions-section,
+    .challenges-section {
         margin: 0 var(--spacing-md) var(--spacing-md);
         padding: var(--spacing-md);
+    }
+
+    .challenge-title {
+        font-size: 0.95rem;
+    }
+
+    .challenge-description {
+        font-size: 0.8rem;
+    }
+
+    .challenges-date {
+        font-size: 0.75rem;
     }
 }
 
@@ -864,9 +890,175 @@ input, select, textarea {
 }
 
 /* ========================================
-   🌙 Dark Mode Support (Future)
+   � Daily Challenges
+   ======================================== */
+
+.challenges-section {
+    background: var(--bg-white);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin: 0 var(--spacing-lg) var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.challenges-date {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.challenges-list {
+    display: grid;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.challenge-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--bg-light);
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--info);
+    transition: var(--transition);
+}
+
+.challenge-item:hover {
+    transform: translateX(4px);
+    background: #E8ECF1;
+}
+
+.challenge-item.completed {
+    border-left-color: var(--success);
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.challenge-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.challenge-content {
+    flex: 1;
+}
+
+.challenge-title {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.challenge-description {
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.challenge-reward {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--primary);
+    color: white;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.challenge-item.completed .challenge-reward {
+    background: var(--success);
+}
+
+.challenge-check {
+    font-size: 1.5rem;
+    color: var(--success);
+    flex-shrink: 0;
+}
+
+/* ========================================
+   🌙 Dark Mode Support
+   ======================================== */
+
+body.dark-mode {
+    --bg-light: #1a1a1a;
+    --bg-white: #2d2d2d;
+    --text-dark: #e0e0e0;
+    --text-light: #a0a0a0;
+    --border: #404040;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 16px rgba(0,0,0,0.5);
+    --shadow-xl: 0 12px 24px rgba(0,0,0,0.6);
+}
+
+body.dark-mode .budget-item,
+body.dark-mode .transaction-item,
+body.dark-mode .challenge-item {
+    background: #3a3a3a;
+}
+
+body.dark-mode .budget-item:hover,
+body.dark-mode .transaction-item:hover,
+body.dark-mode .challenge-item:hover {
+    background: #454545;
+}
+
+body.dark-mode .budget-bar,
+body.dark-mode .xp-bar {
+    background: #404040;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .form-group textarea {
+    background: #3a3a3a;
+    color: var(--text-dark);
+    border-color: #505050;
+}
+
+body.dark-mode .toggle-label {
+    background: #3a3a3a;
+    border-color: #505050;
+    color: var(--text-light);
+}
+
+body.dark-mode .toggle-switch input[type="radio"]:checked + .toggle-label {
+    background: var(--primary);
+    color: white;
+}
+
+body.dark-mode .modal {
+    background: rgba(0,0,0,0.8);
+}
+
+body.dark-mode .karma-container {
+    background: #3a3a3a;
+}
+
+body.dark-mode .empty-state {
+    color: var(--text-light);
+}
+
+body.dark-mode .action-btn:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* Dark mode transition */
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card, .budget-section, .transactions-section, .challenges-section,
+.gamification-section, .chart-container, .modal-content {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ========================================
+   🌙 Dark Mode (Legacy)
    ======================================== */
 
 @media (prefers-color-scheme: dark) {
-    /* Dark mode styles can be added here */
+    /* Auto dark mode can be enabled here if desired */
 }
