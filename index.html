@@ -171,6 +171,98 @@
         </div>
     </div>
 
+    <!-- Modal: Profile -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👤 Your Profile</h2>
+                <button class="close-btn" id="closeProfile" aria-label="Close">&times;</button>
+            </div>
+            <div class="profile-content">
+                <div class="profile-section">
+                    <h3>🎮 Level & Progress</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Level:</span>
+                        <span class="stat-value" id="profileLevel">1</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">XP:</span>
+                        <span class="stat-value" id="profileXP">0 / 500</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Budget Karma:</span>
+                        <span class="stat-value" id="profileKarma">100</span>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h3>💰 Financial Summary</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Balance:</span>
+                        <span class="stat-value" id="profileBalance">₹0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Income:</span>
+                        <span class="stat-value success" id="profileIncome">₹0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Expenses:</span>
+                        <span class="stat-value danger" id="profileExpenses">₹0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Transactions:</span>
+                        <span class="stat-value" id="profileTransCount">0</span>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h3>🏆 Achievements</h3>
+                    <div id="profileBadges" class="badges-container">
+                        <p class="text-muted">Complete challenges to earn badges!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Settings -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Settings</h2>
+                <button class="close-btn" id="closeSettings" aria-label="Close">&times;</button>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h3>🎨 Appearance</h3>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Dark Mode</span>
+                            <input type="checkbox" id="settingDarkMode" class="setting-toggle">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>💰 Budget Limits</h3>
+                    <div id="budgetSettings"></div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>📊 Data Management</h3>
+                    <button class="btn btn-secondary" id="exportDataBtn">📥 Export Data (CSV)</button>
+                    <button class="btn btn-secondary" id="clearDataBtn">🗑️ Clear All Data</button>
+                </div>
+
+                <div class="settings-section">
+                    <h3>ℹ️ About</h3>
+                    <p><strong>Version:</strong> 1.0.0</p>
+                    <p><strong>Last Updated:</strong> October 21, 2025</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="scripts/app.js"></script>

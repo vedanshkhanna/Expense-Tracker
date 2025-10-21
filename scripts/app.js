@@ -128,6 +128,45 @@ class ExpenseTracker {
             viewAllBtn.addEventListener('click', () => this.viewAllTransactions());
         }
 
+        // Profile modal close
+        const closeProfile = document.getElementById('closeProfile');
+        closeProfile.addEventListener('click', () => this.closeProfile());
+
+        // Settings modal close
+        const closeSettings = document.getElementById('closeSettings');
+        closeSettings.addEventListener('click', () => this.closeSettings());
+
+        // Settings - Dark mode toggle
+        const settingDarkMode = document.getElementById('settingDarkMode');
+        settingDarkMode.addEventListener('change', (e) => {
+            if (e.target.checked !== this.darkMode) {
+                this.toggleDarkMode();
+            }
+        });
+
+        // Settings - Export data
+        const exportDataBtn = document.getElementById('exportDataBtn');
+        exportDataBtn.addEventListener('click', () => this.exportData());
+
+        // Settings - Clear data
+        const clearDataBtn = document.getElementById('clearDataBtn');
+        clearDataBtn.addEventListener('click', () => this.clearAllData());
+
+        // Close modals on outside click
+        const profileModal = document.getElementById('profileModal');
+        profileModal.addEventListener('click', (e) => {
+            if (e.target === profileModal) {
+                this.closeProfile();
+            }
+        });
+
+        const settingsModal = document.getElementById('settingsModal');
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                this.closeSettings();
+            }
+        });
+
         // Set today's date as default
         document.getElementById('date').valueAsDate = new Date();
     }
@@ -595,35 +634,118 @@ class ExpenseTracker {
     // ========================================
     showProfile() {
         const stats = this.calculateProfileStats();
+        const modal = document.getElementById('profileModal');
         
-        this.showToast(`
-📊 Your Stats:
-Level: ${this.userData.level}
-XP: ${this.userData.xp}
-Karma: ${this.userData.karma}
-Transactions: ${this.transactions.length}
-        `.trim(), 'info');
+        // Update profile data
+        document.getElementById('profileLevel').textContent = this.userData.level;
+        document.getElementById('profileXP').textContent = `${this.userData.xp} / ${this.userData.level * 500}`;
+        document.getElementById('profileKarma').textContent = this.userData.karma;
+        document.getElementById('profileBalance').textContent = `₹${this.formatNumber(stats.balance)}`;
+        document.getElementById('profileIncome').textContent = `₹${this.formatNumber(stats.totalIncome)}`;
+        document.getElementById('profileExpenses').textContent = `₹${this.formatNumber(stats.totalExpenses)}`;
+        document.getElementById('profileTransCount').textContent = stats.transactionCount;
         
-        console.log('=== USER PROFILE ===');
-        console.log('Level:', this.userData.level);
-        console.log('XP:', this.userData.xp);
-        console.log('Karma:', this.userData.karma);
-        console.log('Total Transactions:', this.transactions.length);
-        console.log('Total Balance:', this.formatNumber(this.calculateTotalBalance()));
-        console.log('Badges:', this.userData.badges);
-        console.log('===================');
+        // Update badges
+        const badgesContainer = document.getElementById('profileBadges');
+        if (this.userData.badges && this.userData.badges.length > 0) {
+            badgesContainer.innerHTML = this.userData.badges.map(badge => 
+                `<span class="badge">${badge}</span>`
+            ).join('');
+        } else {
+            badgesContainer.innerHTML = '<p class="text-muted">Complete challenges to earn badges!</p>';
+        }
+        
+        modal.classList.add('active');
     }
 
     showSettings() {
-        this.showToast('⚙️ Settings panel coming soon!', 'info');
+        const modal = document.getElementById('settingsModal');
         
-        console.log('=== SETTINGS ===');
-        console.log('Dark Mode:', this.darkMode ? 'Enabled' : 'Disabled');
-        console.log('Budget Limits:');
-        Object.entries(this.budgets).forEach(([category, data]) => {
-            console.log(`  ${category}: ₹${this.formatNumber(data.limit)}`);
+        // Update dark mode toggle
+        document.getElementById('settingDarkMode').checked = this.darkMode;
+        
+        // Update budget settings
+        const budgetSettings = document.getElementById('budgetSettings');
+        budgetSettings.innerHTML = Object.entries(this.budgets).map(([category, data]) => `
+            <div class="budget-setting">
+                <label>${this.getCategoryIcon(category)} ${this.capitalizeFirst(category)}</label>
+                <input type="number" 
+                       id="budget_${category}" 
+                       value="${data.limit}" 
+                       min="0" 
+                       step="100"
+                       data-category="${category}">
+            </div>
+        `).join('');
+        
+        // Add event listeners to budget inputs
+        Object.keys(this.budgets).forEach(category => {
+            const input = document.getElementById(`budget_${category}`);
+            input.addEventListener('change', (e) => {
+                this.budgets[category].limit = parseFloat(e.target.value);
+                this.saveData();
+                this.updateBudgets();
+                this.showToast(`Budget for ${category} updated!`, 'success');
+            });
         });
-        console.log('================');
+        
+        modal.classList.add('active');
+    }
+
+    closeProfile() {
+        const modal = document.getElementById('profileModal');
+        modal.classList.remove('active');
+    }
+
+    closeSettings() {
+        const modal = document.getElementById('settingsModal');
+        modal.classList.remove('active');
+    }
+
+    exportData() {
+        const data = {
+            transactions: this.transactions,
+            budgets: this.budgets,
+            userData: this.userData,
+            exportDate: new Date().toISOString()
+        };
+        
+        const csvContent = this.convertToCSV(this.transactions);
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `expense-tracker-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        
+        this.showToast('📥 Data exported successfully!', 'success');
+    }
+
+    convertToCSV(transactions) {
+        const headers = ['Date', 'Type', 'Category', 'Amount', 'Notes'];
+        const rows = transactions.map(t => [
+            t.date,
+            t.type,
+            t.category,
+            t.amount,
+            t.notes || ''
+        ]);
+        
+        const csvRows = [headers, ...rows].map(row => 
+            row.map(cell => `"${cell}"`).join(',')
+        ).join('\n');
+        
+        return csvRows;
+    }
+
+    clearAllData() {
+        if (confirm('⚠️ Are you sure you want to delete ALL data? This cannot be undone!')) {
+            if (confirm('This will delete all transactions, budgets, and progress. Continue?')) {
+                localStorage.clear();
+                this.showToast('🗑️ All data cleared!', 'warning');
+                setTimeout(() => location.reload(), 1000);
+            }
+        }
     }
 
     calculateProfileStats() {

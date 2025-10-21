@@ -1045,14 +1045,192 @@ body.dark-mode .action-btn:hover {
     background: rgba(255,255,255,0.1);
 }
 
-/* Dark mode transition */
-body {
-    transition: background-color 0.3s ease, color 0.3s ease;
+/* ========================================
+   👤 Profile Modal Styles
+   ======================================== */
+
+.profile-content {
+    padding: var(--spacing-md) 0;
 }
 
-.card, .budget-section, .transactions-section, .challenges-section,
-.gamification-section, .chart-container, .modal-content {
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+.profile-section {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border);
+}
+
+.profile-section:last-child {
+    border-bottom: none;
+}
+
+.profile-section h3 {
+    color: var(--primary);
+    margin-bottom: var(--spacing-md);
+    font-size: 1.125rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+}
+
+.stat-label {
+    font-weight: 500;
+    color: var(--text-light);
+}
+
+.stat-value {
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 1.125rem;
+}
+
+.stat-value.success {
+    color: var(--success);
+}
+
+.stat-value.danger {
+    color: var(--danger);
+}
+
+.badges-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.badge {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--primary);
+    color: white;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.text-muted {
+    color: var(--text-light);
+    font-style: italic;
+}
+
+/* ========================================
+   ⚙️ Settings Modal Styles
+   ======================================== */
+
+.settings-content {
+    padding: var(--spacing-md) 0;
+}
+
+.settings-section {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-section:last-child {
+    border-bottom: none;
+}
+
+.settings-section h3 {
+    color: var(--primary);
+    margin-bottom: var(--spacing-md);
+    font-size: 1.125rem;
+}
+
+.setting-item {
+    padding: var(--spacing-md) 0;
+}
+
+.setting-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.setting-toggle {
+    width: 50px;
+    height: 26px;
+    appearance: none;
+    background: #ccc;
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.setting-toggle:checked {
+    background: var(--primary);
+}
+
+.setting-toggle::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    top: 2px;
+    left: 2px;
+    transition: var(--transition);
+}
+
+.setting-toggle:checked::before {
+    left: 26px;
+}
+
+.budget-setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm) 0;
+}
+
+.budget-setting label {
+    flex: 1;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.budget-setting input {
+    width: 150px;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+.btn-secondary {
+    background: var(--text-light);
+    color: white;
+    width: 100%;
+    margin: var(--spacing-sm) 0;
+}
+
+.btn-secondary:hover {
+    background: var(--text-dark);
+}
+
+.settings-section p {
+    margin: var(--spacing-xs) 0;
+    color: var(--text-light);
+}
+
+/* Dark mode for profile and settings */
+body.dark-mode .profile-section,
+body.dark-mode .settings-section {
+    border-bottom-color: #404040;
+}
+
+body.dark-mode .stat-value {
+    color: var(--text-dark);
+}
+
+body.dark-mode .budget-setting input {
+    background: #3a3a3a;
+    color: var(--text-dark);
 }
 
 /* ========================================
