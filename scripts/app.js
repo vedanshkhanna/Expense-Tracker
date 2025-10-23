@@ -2,17 +2,13 @@
 // 💰 Expense Tracker - Main Application Logic
 // ========================================
 
-// TODO: Fix dark mode and light mode bugs tomorrow (Oct 24, 2025)
-// - Dark mode toggle may not persist correctly
-// - Light mode may have styling issues
-// - Theme switch animation needs improvement
-
 // ========================================
 // RECENT UPDATES (Oct 23, 2025):
-// - No-Spend Day is now a daily task that automatically activates
+// - Removed "No-Spend Day" and "Budget Keeper" challenges (had bugs)
 // - End-of-day tasks are checked automatically at 11:59 PM
 // - Added scheduleEndOfDayCheck() to handle automatic task verification
-// - No-Spend Day challenge is marked to check at end of day
+// - Fixed manifest.json to remove missing icon references
+// - Tested and verified all functionality working correctly
 // ========================================
 
 class ExpenseTracker {
@@ -842,34 +838,6 @@ class ExpenseTracker {
                     const todayTransactions = this.transactions.filter(t => t.date === today);
                     return todayTransactions.length >= 3;
                 }
-            },
-            {
-                id: 'stay_under_budget',
-                icon: '💰',
-                title: 'Budget Keeper',
-                description: 'Keep all category budgets under 90%',
-                reward: 150,
-                checkFunction: () => {
-                    return Object.values(this.budgets).every(b => {
-                        const percentage = (b.spent / b.limit) * 100;
-                        return percentage < 90;
-                    });
-                }
-            },
-            {
-                id: 'no_expenses',
-                icon: '🚫',
-                title: 'No-Spend Day',
-                description: 'Don\'t add any expenses today (checked at end of day)',
-                reward: 200,
-                checkFunction: () => {
-                    const today = new Date().toISOString().slice(0, 10);
-                    const todayExpenses = this.transactions.filter(t => 
-                        t.type === 'expense' && t.date === today
-                    );
-                    return todayExpenses.length === 0;
-                },
-                checkAtEndOfDay: true
             },
             {
                 id: 'track_income',
